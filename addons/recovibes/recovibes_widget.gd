@@ -10,7 +10,7 @@ extends Control
 ## node enters the tree counts as a new screen view, like a page load.
 
 const WIDGET_VERSION := "godot-1"
-const PACKAGE_VERSION := "1.2.1"
+const PACKAGE_VERSION := "1.3.0"
 const MAX_SLOTS := 12
 const ATTRIBUTION_URL := "https://recovibes.com/?utm_source=godot&utm_medium=attribution"
 const DEFAULT_ACCENT := Color("#7e7eff")
@@ -156,6 +156,11 @@ func _load() -> void:
 	if typeof(parsed) != TYPE_DICTIONARY or str(parsed.get("receipt", "")) == "":
 		push_warning("[RecoVibes] Unexpected response from the server.")
 		return
+	# A newer addon is out: say so once per editor session, never in exported games.
+	var notice := str(parsed.get("sdkNotice", ""))
+	if notice != "" and OS.has_feature("editor") and not Engine.has_meta("recovibes_notice_shown"):
+		Engine.set_meta("recovibes_notice_shown", true)
+		push_warning("[RecoVibes] " + notice)
 	# A fresh load is a fresh screen view.
 	_host_seen = false
 	_seen.clear()
